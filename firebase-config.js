@@ -10,11 +10,11 @@
 window.MDM_CONFIG = {
   // १. Google Firebase Realtime Database URL:
   // उदा. "https://your-school-rtdb.firebaseio.com"
-  firebaseUrl: "",
+  firebaseUrl: "https://mdm-zugarewadi-default-rtdb.firebaseio.com/",
 
   // २. शाळेचा 11 अंकी UDISE कोड:
   // उदा. "27240304501"
-  schoolUdise: "27240304501",
+  schoolUdise: "27240215801",
 
   // ३. शाळेचे नाव (ऐच्छिक - डेटाबेसवरून आपोआप लोड होते):
   schoolName: "रा.जि.प. प्राथमिक शाळा मेंगाळवाडी",
