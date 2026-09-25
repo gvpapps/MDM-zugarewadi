@@ -88,17 +88,17 @@
     <div class="auth-card" style="max-width: 520px;">
       <div class="auth-header text-center">
         <div class="auth-icon-circle school-icon">🏫</div>
-        <h2 class="auth-title">शाळा थेट लॉगिन (Multi-School)</h2>
-        <p class="auth-subtitle">नोंदवलेली शाळा निवडा किंवा नवीन 11 अंकी UDISE कोड टाकून थेट सुरू करा</p>
+        <h2 class="auth-title">शाळा थेट लॉगिन</h2>
+        <p class="auth-subtitle">शाळेचा 11 अंकी UDISE कोड टाकून थेट सुरू करा</p>
       </div>
 
       <div class="auth-body">
         <div id="schoolLoginAlert" class="alert alert-danger d-none py-2 px-3 mb-3 small" role="alert"></div>
 
-        <!-- Registered Schools List -->
-        <div class="mb-3">
+        <!-- Registered Schools List (Hidden in Single School Mode) -->
+        <div class="mb-3" id="registeredSchoolsContainer" style="display: none;">
           <label class="form-label fw-bold small text-dark d-flex justify-content-between align-items-center">
-            <span>🏫 नोंदवलेल्या शाळा (1-Click थेट प्रवेश):</span>
+            <span>🏫 नोंदवलेली शाळा:</span>
             <span class="text-muted" style="font-size: 0.72rem;">या डिव्हाइसवरील सेव्ह शाळा</span>
           </label>
           <div id="registeredSchoolsList" class="registered-schools-list mb-2">
@@ -106,13 +106,9 @@
           </div>
         </div>
 
-        <div class="auth-divider my-3">
-          <span>किंवा नवीन शाळा UDISE टाका</span>
-        </div>
-
         <div class="mb-3">
           <label for="schoolUdiseInput" class="form-label fw-bold small text-dark">
-            ➕ नवीन शाळेचा 11 अंकी UDISE कोड:
+            🏫 शाळेचा 11 अंकी UDISE कोड:
           </label>
           <div class="input-group input-group-lg">
             <input type="text" class="form-control text-center fw-bold fs-4" id="schoolUdiseInput" maxlength="11" placeholder="उदा. 27240304501" autocomplete="off" oninput="app.onUdiseInput(this)" onkeydown="if(event.key==='Enter') app.loginSchool()">
@@ -154,7 +150,7 @@
             ⭐ ॲप निर्मिती : <strong>श्री गणेश विलास पष्टे</strong> ⭐
           </span>
         </div>
-        <small class="text-muted">टीप: प्रत्येक शाळेचा डेटा स्वतंत्रपणे सुरक्षित राहतो. शाळा बदलायची असल्यास "शाळा बदला" बटण वापरा.</small>
+        <small class="text-muted">टीप: शाळेची माहिती एकदा सेव्ह केल्यावर ती कायमस्वरूपी डेटाबेसमध्ये सुरक्षित राहते.</small>
       </div>
     </div>
   </div>
@@ -204,18 +200,18 @@
             <span class="meta-icon">👥</span>
             <span id="headerPatLabel">पट: <strong id="headerPatCount">9</strong></span>
           </div>
-          <div class="meta-pill udise-badge cursor-pointer" id="headerUdiseBadge" onclick="app.openSchoolSwitcherModal()" title="शाळा बदला / जलद स्विच करा (Switch School)">
+          <div class="meta-pill udise-badge" id="headerUdiseBadge" title="शाळा UDISE कोड">
             <span class="meta-icon">🏫</span>
-            <span>UDISE: <strong id="headerUdiseCode">27240304501</strong> ▾</span>
+            <span>UDISE: <strong id="headerUdiseCode">27240304501</strong></span>
           </div>
-          <button class="btn btn-sm btn-outline-primary" id="switchSchoolBtn" onclick="app.openSchoolSwitcherModal()" title="शाळा बदला / जलद शाळा निवडा" style="border-color: rgba(59, 130, 246, 0.6); color: #93c5fd;">
+          <button class="btn btn-sm btn-outline-primary" id="switchSchoolBtn" onclick="app.openSchoolSwitcherModal()" title="शाळा बदला / जलद शाळा निवडा" style="display: none !important; border-color: rgba(59, 130, 246, 0.6); color: #93c5fd;">
             <span>🔄 शाळा बदला</span>
           </button>
           <button type="button" class="meta-pill cloud-pill" id="cloudStatusPill" onclick="app.openCloudSyncModal()" style="cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.22); font-family: inherit; outline: none; -webkit-tap-highlight-color: transparent;" title="Google Firebase क्लाऊड सिंक व्यवस्थापन">
             <span id="cloudStatusDot" class="status-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; margin-right: 4px;"></span>
             <span id="cloudStatusText">☁️ क्लाऊड सिंक</span>
           </button>
-          <button class="btn btn-sm btn-outline-danger" id="logoutSchoolBtn" onclick="app.logoutSchool()" title="शाळा बदला / UDISE लॉगआउट करा" style="border-color: rgba(239, 68, 68, 0.6); color: #fca5a5;">
+          <button class="btn btn-sm btn-outline-danger" id="logoutSchoolBtn" onclick="app.logoutSchool()" title="शाळा बदला / UDISE लॉगआउट करा" style="display: none !important; border-color: rgba(239, 68, 68, 0.6); color: #fca5a5;">
             <span>🚪 लॉगआउट</span>
           </button>
           <button class="btn btn-sm btn-outline-light" id="quickTestBtn" onclick="app.switchTab('tests')">
@@ -2199,7 +2195,7 @@
             <span class="drawer-tile-icon">🧪</span>
             <span class="drawer-tile-label">चाचणी</span>
           </button>
-          <button class="drawer-tile highlight-school" onclick="app.openSchoolSwitcherModal(); app.closeMobileMoreDrawer();">
+          <button class="drawer-tile highlight-school" onclick="app.openSchoolSwitcherModal(); app.closeMobileMoreDrawer();" style="display: none !important;">
             <span class="drawer-tile-icon">🏫</span>
             <span class="drawer-tile-label">शाळा बदला</span>
           </button>
@@ -2859,6 +2855,7 @@
   </div>
 
   <!-- Application Logic Scripts -->
+  <script src="firebase-config.js"></script>
   <script src="cloud-sync.js"></script>
   <script src="excel-engine.js"></script>
   <script src="test-suite.js"></script>

@@ -168,9 +168,34 @@ const app = {
   },
 
   /**
+   * Auto-apply configuration from window.MDM_CONFIG (e.g. from firebase-config.js in GitHub repository)
+   */
+  applyGlobalConfig() {
+    if (typeof window !== 'undefined' && window.MDM_CONFIG) {
+      const cfg = window.MDM_CONFIG;
+      if (cfg.schoolUdise && /^\d{11}$/.test(String(cfg.schoolUdise).trim())) {
+        const cleanUdise = String(cfg.schoolUdise).trim();
+        const existingUdise = localStorage.getItem(this.ACTIVE_UDISE_STORAGE_KEY);
+        if (!existingUdise || existingUdise !== cleanUdise) {
+          localStorage.setItem(this.ACTIVE_UDISE_STORAGE_KEY, cleanUdise);
+        }
+        if (this.data && this.data.settings) {
+          this.data.settings.udise = cleanUdise;
+        }
+      }
+      if (cfg.schoolName && this.data && this.data.settings) {
+        if (!this.data.settings.schoolName || this.data.settings.schoolName.includes('(')) {
+          this.data.settings.schoolName = cfg.schoolName;
+        }
+      }
+    }
+  },
+
+  /**
    * Initialize Application
    */
   init() {
+    this.applyGlobalConfig();
     this.loadState();
     this.populateInitialSampleDataIfEmpty();
     this.setupDatePickers();
@@ -940,6 +965,9 @@ const app = {
   },
 
   openSchoolSwitcherModal() {
+    if (typeof window !== 'undefined' && window.MDM_CONFIG && window.MDM_CONFIG.singleSchoolMode !== false) {
+      return;
+    }
     const modal = document.getElementById('schoolSwitcherModal');
     if (!modal) return;
     this.renderRegisteredSchoolsList();
@@ -1072,6 +1100,24 @@ const app = {
     const loginScreen = document.getElementById('schoolLoginScreen');
     const appWrapper = document.getElementById('app');
 
+    // Single School UI clean-up: Hide school switcher and logout buttons
+    const isSingleSchool = (typeof window !== 'undefined' && window.MDM_CONFIG && window.MDM_CONFIG.singleSchoolMode !== false);
+    if (isSingleSchool) {
+      const switchBtn = document.getElementById('switchSchoolBtn');
+      if (switchBtn) switchBtn.style.setProperty('display', 'none', 'important');
+      const logoutBtn = document.getElementById('logoutSchoolBtn');
+      if (logoutBtn) logoutBtn.style.setProperty('display', 'none', 'important');
+      const regListContainer = document.getElementById('registeredSchoolsContainer');
+      if (regListContainer) regListContainer.style.setProperty('display', 'none', 'important');
+      const switcherModal = document.getElementById('schoolSwitcherModal');
+      if (switcherModal) switcherModal.style.display = 'none';
+      const udiseBadge = document.getElementById('headerUdiseBadge');
+      if (udiseBadge) {
+        udiseBadge.onclick = null;
+        udiseBadge.classList.remove('cursor-pointer');
+      }
+    }
+
     // 1. Check Activation Status (30-day Demo / 365-day Full License)
     const actData = this.getActivationData();
     if (!actData) {
@@ -1087,6 +1133,16 @@ const app = {
     if (actScreen) actScreen.style.display = 'none';
     const licBadge = document.getElementById('activeLicenseLabel');
     if (licBadge) licBadge.textContent = actData.name || 'सक्रिय';
+
+    // Auto-resolve UDISE in single school mode if specified in MDM_CONFIG
+    if (isSingleSchool && typeof window !== 'undefined' && window.MDM_CONFIG && window.MDM_CONFIG.schoolUdise) {
+      const cfgUdise = String(window.MDM_CONFIG.schoolUdise).trim();
+      if (/^\d{11}$/.test(cfgUdise)) {
+        if (!localStorage.getItem(this.ACTIVE_UDISE_STORAGE_KEY)) {
+          localStorage.setItem(this.ACTIVE_UDISE_STORAGE_KEY, cfgUdise);
+        }
+      }
+    }
 
     // 2. Check School UDISE Login (Direct login without password)
     const activeUdise = localStorage.getItem(this.ACTIVE_UDISE_STORAGE_KEY);
@@ -2256,7 +2312,7 @@ const app = {
     }
 
     // Auto-save school & officers details on input so they are never lost
-    ['setSchoolName', 'setUdise', 'setCentre', 'setTaluka', 'setDistrict', 'setPat', 'setHeadmaster', 'setPresident', 'setAssistantTeacher', 'setCookName', 'setFuelRate', 'setCookHonorarium', 'setCookCount'].forEach(id => {
+    ['setSchoolName', 'setUdise', 'setCentre', 'setTaluka', 'setDistrict', 'setPat', 'setPatPrimary', 'setPatUpper', 'setHeadmaster', 'setPresident', 'setAssistantTeacher', 'setCookName', 'setFuelRate', 'setFuelRatePrimary', 'setFuelRateUpper', 'setCookHonorarium', 'setCookCount'].forEach(id => {
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener('input', () => this.autoSaveSchoolSettings());
@@ -6601,12 +6657,21 @@ const app = {
     const sCookH = document.getElementById('setCookHonorarium');
     const sCookC = document.getElementById('setCookCount');
 
-    if (sName) this.data.settings.schoolName = sName.value.trim();
+    if (sName) {
+      const trimmedName = sName.value.trim();
+      this.data.settings.schoolName = trimmedName;
+      if (typeof window !== 'undefined' && window.MDM_CONFIG) {
+        window.MDM_CONFIG.schoolName = trimmedName;
+      }
+    }
     if (uDise) {
       const cleanU = uDise.value.trim();
       this.data.settings.udise = cleanU;
       if (cleanU.length === 11) {
         localStorage.setItem(this.ACTIVE_UDISE_STORAGE_KEY, cleanU);
+        if (typeof window !== 'undefined' && window.MDM_CONFIG) {
+          window.MDM_CONFIG.schoolUdise = cleanU;
+        }
       }
     }
     if (sCentre) this.data.settings.centre = sCentre.value.trim();
@@ -6644,6 +6709,14 @@ const app = {
     }
     if (sCookH) this.data.settings.cookHonorarium = parseInt(sCookH.value) || 2500;
     if (sCookC) this.data.settings.cookCount = parseInt(sCookC.value) || 1;
+
+    // Save School Level ('both' | 'primary' | 'upper')
+    const rBoth = document.getElementById('levelBoth');
+    const rPri = document.getElementById('levelPrimary');
+    const rUpp = document.getElementById('levelUpper');
+    if (rBoth && rBoth.checked) this.data.settings.schoolLevel = 'both';
+    else if (rPri && rPri.checked) this.data.settings.schoolLevel = 'primary';
+    else if (rUpp && rUpp.checked) this.data.settings.schoolLevel = 'upper';
 
     this.saveState();
     this.updateHeaderMeta();
@@ -7019,7 +7092,13 @@ const app = {
 
     this.saveState();
     this.refreshAllViews();
-    this.showToast('✅ सर्व सेटिंग्ज, नियम व मागील साठा सर्व पानांवर यशस्वीरित्या अपडेट झाले!', 'success');
+
+    // Direct immediate push to Google Firebase Realtime Database
+    if (typeof cloudSync !== 'undefined' && cloudSync.config && cloudSync.config.enabled && cloudSync.config.firebaseUrl) {
+      cloudSync.pushToCloud(true);
+    }
+
+    this.showToast('✅ सर्व शाळा सेटिंग्ज, नियम व मागील साठा सर्व पानांवर व डेटाबेसवर यशस्वीरित्या सेव्ह झाले!', 'success');
   },
 
   // =========================================================================
