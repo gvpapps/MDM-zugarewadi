@@ -2,26 +2,24 @@
  * शालेय पोषण आहार (PM POSHAN) - Firebase Cloud Configuration
  * 
  * प्रत्येक शाळेसाठी / GitHub रिपॉझिटरीसाठी:
- * 1. खालील firebaseUrl मध्ये तुमच्या Google Firebase Realtime Database ची URL टाका.
- * 2. schoolUdise मध्ये शाळेचा 11 अंकी UDISE कोड टाका.
- * 3. GitHub वर सेव्ह/पुश करा. ॲप आपोआप या डेटाबेसशी कनेक्ट होईल.
+ * 1. खालील firebaseUrl मध्ये तुमच्या Google Firebase Realtime Database ची URL टाकली आहे.
+ * 2. schoolUdise मध्ये शाळेचा UDISE कोड (सेटिंग्जमधून बदलल्यास आपोआप सिंक होतो).
+ * 3. GitHub वरून ही लिंक लोड झाल्यावर बॅकग्राउंडमध्ये आपोआप 2-way डेटा सिंक होतो.
  */
 
 window.MDM_CONFIG = {
   // १. Google Firebase Realtime Database URL:
-  // उदा. "https://your-school-rtdb.firebaseio.com"
   firebaseUrl: "https://mdm-zugarewadi-default-rtdb.firebaseio.com/",
 
   // २. शाळेचा 11 अंकी UDISE कोड:
-  // उदा. "27240304501"
-  schoolUdise: "27240215801",
+  schoolUdise: "27240304501",
 
-  // ३. शाळेचे नाव (ऐच्छिक - डेटाबेसवरून आपोआप लोड होते):
-  schoolName: "रा.जि.प. प्राथमिक शाळा मेंगाळवाडी",
+  // ३. शाळेचे नाव (डेटाबेसवरून किंवा ॲप सेटिंग्जमधून लोड होते):
+  schoolName: "रा.जि.प. प्राथमिक शाळा झुगरेवाडी",
 
-  // ४. ऑटोमॅटिक क्लाऊड सिंक सुरू ठेवायचे का? (true = होय, आपोआप सेव्ह करा)
+  // ४. ऑटोमॅटिक क्लाऊड बॅकग्राउंड सिंक (true = चालू):
   autoSync: true,
 
-  // ५. सिंगल स्कूल मोड (Single School Dedicated Mode)
+  // ५. सिंगल स्कूल मोड (Single School Dedicated Mode):
   singleSchoolMode: true
 };

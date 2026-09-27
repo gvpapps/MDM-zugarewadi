@@ -207,10 +207,10 @@
           <button class="btn btn-sm btn-outline-primary" id="switchSchoolBtn" onclick="app.openSchoolSwitcherModal()" title="शाळा बदला / जलद शाळा निवडा" style="display: none !important; border-color: rgba(59, 130, 246, 0.6); color: #93c5fd;">
             <span>🔄 शाळा बदला</span>
           </button>
-          <button type="button" class="meta-pill cloud-pill" id="cloudStatusPill" onclick="app.openCloudSyncModal()" style="cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.22); font-family: inherit; outline: none; -webkit-tap-highlight-color: transparent;" title="Google Firebase क्लाऊड सिंक व्यवस्थापन">
-            <span id="cloudStatusDot" class="status-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; margin-right: 4px;"></span>
-            <span id="cloudStatusText">☁️ क्लाऊड सिंक</span>
-          </button>
+          <div class="meta-pill cloud-pill" id="cloudStatusPill" style="cursor: default; border: 1px solid rgba(255, 255, 255, 0.22); font-family: inherit; user-select: none;" title="क्लाऊड बॅकग्राउंड सिंक स्थिती">
+            <span id="cloudStatusDot" class="status-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; margin-right: 4px;"></span>
+            <span id="cloudStatusText">🟢 सिंक सुरक्षित</span>
+          </div>
           <button class="btn btn-sm btn-outline-danger" id="logoutSchoolBtn" onclick="app.logoutSchool()" title="शाळा बदला / UDISE लॉगआउट करा" style="display: none !important; border-color: rgba(239, 68, 68, 0.6); color: #fca5a5;">
             <span>🚪 लॉगआउट</span>
           </button>
@@ -2007,41 +2007,13 @@
               </div>
             </div>
 
-            <!-- Google Firebase Realtime Cloud Sync Settings Card -->
-            <div class="card settings-card" style="border: 2px solid #2563eb; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
-              <div class="card-header flex-between" style="background: #eff6ff;">
-                <div class="d-flex align-items-center gap-2">
-                  <span style="font-size: 1.35rem;">☁️</span>
-                  <div>
-                    <h3 class="card-title" style="color: #1e40af; margin: 0;">5. Google Firebase रिअल-टाईम क्लाऊड सिंक (Live Multi-Device Sync)</h3>
-                    <p class="card-subtitle" style="color: #3b82f6; font-size: 0.82rem; margin: 0;">मोबाईल, लॅपटॉप व संगणकावर एकाच वेळी डेटा लाईव्ह सिंक करा</p>
-                  </div>
-                </div>
-                <span class="badge badge-primary" style="background: #2563eb;">Google Firebase</span>
-              </div>
-              <div class="card-body">
-                <p style="font-size: 0.88rem; color: #475569; margin-bottom: 1rem; line-height: 1.5;">
-                  शाळेचा संपूर्ण पोषण आहार डेटा (इ. 1 ते 5 व 6 ते 8) मोबाईल व कॉम्प्युटरवर थेट रिअल-टाईम सिंक करण्यासाठी Google Firebase Realtime Database वापरा. एका उपकरणावर केलेली नोंद सर्व ठिकाणी सुरक्षित उपलब्ध होते.
-                </p>
-                <div class="d-flex gap-2 flex-wrap align-items-center">
-                  <button type="button" class="btn btn-primary btn-lg fw-bold" onclick="app.openCloudSyncModal()">
-                    <span>☁️ Google Firebase क्लाऊड सिंक नियंत्रण उघडा 🚀</span>
-                  </button>
-                  <button type="button" class="btn btn-outline-primary" onclick="app.syncCloudNow()">
-                    <span>☁️ आता सिंक करा (Push)</span>
-                  </button>
-                  <button type="button" class="btn btn-outline-success" onclick="app.pullCloudNow()">
-                    <span>📥 क्लाऊडवरून आणा (Pull)</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+
 
             <!-- Clear All Data & Reset Card -->
             <div class="card settings-card" style="border-left: 4px solid #ef4444;">
               <div class="card-header flex-between" style="background: #fef2f2;">
                 <div>
-                  <h3 class="card-title" style="color: #991b1b;">🗑️ 4. डेटा व्यवस्थापन व नव्याने सुरुवात (Clear Data & Start Fresh from 0)</h3>
+                  <h3 class="card-title" style="color: #991b1b;">🗑️ 5. डेटा व्यवस्थापन व नव्याने सुरुवात (Clear Data & Start Fresh from 0)</h3>
                   <p class="card-subtitle" style="color: #b91c1c; font-size: 0.82rem; margin: 0;">जुना किंवा सॅम्पल डेटा काढून पूर्णपणे 0 (Zero) नोंदीपासून सुरुवात करा</p>
                 </div>
                 <span class="badge badge-danger">0 डेटा रीसेट</span>
@@ -2195,14 +2167,7 @@
             <span class="drawer-tile-icon">🧪</span>
             <span class="drawer-tile-label">चाचणी</span>
           </button>
-          <button class="drawer-tile highlight-school" onclick="app.openSchoolSwitcherModal(); app.closeMobileMoreDrawer();" style="display: none !important;">
-            <span class="drawer-tile-icon">🏫</span>
-            <span class="drawer-tile-label">शाळा बदला</span>
-          </button>
-          <button class="drawer-tile highlight-cloud" onclick="app.openCloudSyncModal(); app.closeMobileMoreDrawer();">
-            <span class="drawer-tile-icon">☁️</span>
-            <span class="drawer-tile-label">क्लाऊड सिंक</span>
-          </button>
+
         </div>
       </div>
     </div>
@@ -2771,88 +2736,7 @@
     </div>
   </div>
 
-  <!-- Modal: Cloud Sync Settings & Multi-Device Sync (Exclusively Google Firebase) -->
-  <div id="cloudSyncModal" class="modal-backdrop" style="display: none; z-index: 1000008;">
-    <div class="modal-dialog" style="max-width: 660px;">
-      <div class="modal-content" style="border-top: 4px solid #2563eb; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);">
-        <div class="modal-header" style="background: #eff6ff; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem;">
-          <div class="d-flex align-items-center gap-2">
-            <span style="font-size: 1.5rem;">☁️</span>
-            <h3 class="modal-title" style="color: #1e40af; font-size: 1.15rem; font-weight: 800; margin: 0;">Google Firebase क्लाऊड सिंक व्यवस्थापन</h3>
-          </div>
-          <button class="modal-close-btn" type="button" onclick="app.closeCloudSyncModal()">&times;</button>
-        </div>
-        <div class="modal-body" style="max-height: 80vh; overflow-y: auto; padding: 1.25rem;">
-          
-          <p class="text-muted mb-3" style="font-size: 0.85rem; line-height: 1.45;">
-            शाळेचा संपूर्ण पोषण आहार डेटा (इ. 1 ते 5 व 6 ते 8) मोबाईल, लॅपटॉप आणि कॉम्प्युटरवर रिअल-टाईम थेट सिंक करण्यासाठी <strong>Google Firebase Realtime Database</strong> वापरा. एका डिव्हाइसवर नोंद करताच ती इतर सर्व डिव्हाइसेसवर आपोआप सुरक्षित अपडेट होते.
-          </p>
 
-          <!-- Real-time Status Card -->
-          <div id="cloudModalStatusText" class="p-3 mb-3 rounded" style="background: #f8fafc; border: 1.5px solid #e2e8f0;">
-            <span class="badge badge-secondary" style="font-size: 0.9rem;">स्थिती: तपासत आहे...</span>
-          </div>
-
-          <form id="cloudSyncForm" onsubmit="event.preventDefault(); app.saveCloudSyncSettings();">
-            <div class="row g-2 mb-3">
-              <div class="col-md-7">
-                <label for="cloudSchoolCode" class="form-label fw-bold small text-dark">शाळेचा UDISE क्रमांक:</label>
-                <input type="text" id="cloudSchoolCode" class="form-control fw-bold" placeholder="उदा. 27240801201" required>
-                <small class="text-muted" style="font-size: 0.72rem;">या UDISE च्या खात्यावर डेटा क्लाऊडमध्ये सुरक्षित साठवला जाईल.</small>
-              </div>
-              <div class="col-md-5">
-                <label for="cloudSecretPin" class="form-label fw-bold small text-dark">सुरक्षा पिन (PIN):</label>
-                <input type="password" id="cloudSecretPin" class="form-control" value="Ican@123" required>
-                <small class="text-muted" style="font-size: 0.72rem;">सिंक प्रमाणीकरण सुरक्षा पिन.</small>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label for="cloudFirebaseUrl" class="form-label fw-bold small text-dark">
-                🔥 Google Firebase Realtime Database URL:
-              </label>
-              <input type="url" id="cloudFirebaseUrl" class="form-control font-monospace" placeholder="https://your-project-default-rtdb.firebaseio.com/" required style="font-size: 0.88rem;">
-              <small class="text-muted" style="font-size: 0.75rem;">
-                उदा. <code>https://school-mdm-default-rtdb.firebaseio.com</code> किंवा <code>https://school-mdm-default-rtdb.asia-southeast1.firebasedatabase.app</code>
-              </small>
-            </div>
-
-            <!-- Action Toolbar -->
-            <div class="d-flex flex-wrap gap-2 mb-3">
-              <button type="button" class="btn btn-sm btn-outline-info fw-bold" id="btnTestFirebase" onclick="app.testFirebaseConnection()">
-                <span>🔍 कनेक्शन तपासा (Test Ping)</span>
-              </button>
-              <button type="button" class="btn btn-sm btn-primary fw-bold" id="btnCloudSyncNow" onclick="app.syncCloudNow()">
-                <span>☁️ आता क्लाऊडवर पाठवा (Push)</span>
-              </button>
-              <button type="button" class="btn btn-sm btn-success fw-bold" id="btnCloudPullNow" onclick="app.pullCloudNow()">
-                <span>📥 क्लाऊडवरून आणा (Pull)</span>
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-warning" onclick="app.emergencyRestoreData()" title="डेटा नष्ट झाला असल्यास मागील सुरक्षित बॅकअप परत मिळवा">
-                <span>🚑 आणीबाणी बॅकअप रिकव्हरी</span>
-              </button>
-            </div>
-
-
-            <div class="modal-footer flex-between mt-3 p-0 pt-3" style="border-top: 1px solid #e2e8f0;">
-              <button type="button" class="btn btn-outline-danger btn-sm" onclick="app.disableCloudSync()">
-                <span>❌ सिंक बंद करा</span>
-              </button>
-              <div class="d-flex gap-2">
-                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="app.closeCloudSyncModal()">
-                  <span>बंद करा</span>
-                </button>
-                <button type="submit" class="btn btn-primary btn-sm fw-bold px-3">
-                  <span>💾 सेव्ह करा व सुरू करा</span>
-                </button>
-              </div>
-            </div>
-          </form>
-
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Application Logic Scripts -->
   <script src="firebase-config.js"></script>

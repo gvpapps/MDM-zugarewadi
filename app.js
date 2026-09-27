@@ -7125,180 +7125,51 @@ const app = {
   // =========================================================================
 
   openCloudSyncModal() {
-    try {
-      const modal = document.getElementById('cloudSyncModal');
-      if (!modal) {
-        console.error("cloudSyncModal element not found!");
-        return;
-      }
-      modal.style.display = 'flex';
-      modal.style.zIndex = '1000008';
-      
-      const codeInput = document.getElementById('cloudSchoolCode');
-      const pinInput = document.getElementById('cloudSecretPin');
-      const fbInput = document.getElementById('cloudFirebaseUrl');
-      
-      const currentUdise = (typeof this.getActiveUdise === 'function') ? this.getActiveUdise() : (this.data && this.data.settings ? this.data.settings.udise : '27240801201');
-      if (codeInput) {
-        codeInput.value = (typeof cloudSync !== 'undefined' && cloudSync.config && cloudSync.config.schoolCode)
-          ? cloudSync.config.schoolCode : (currentUdise || '27240801201');
-      }
-      if (pinInput) {
-        pinInput.value = (typeof cloudSync !== 'undefined' && cloudSync.config && cloudSync.config.secretPin)
-          ? cloudSync.config.secretPin : 'Ican@123';
-      }
-      if (fbInput) {
-        fbInput.value = (typeof cloudSync !== 'undefined' && cloudSync.config && cloudSync.config.firebaseUrl)
-          ? cloudSync.config.firebaseUrl : '';
-      }
-      
-      if (typeof cloudSync !== 'undefined' && typeof cloudSync.updateUIStatus === 'function') {
-        cloudSync.updateUIStatus();
-      }
-    } catch (e) {
-      console.error("Error opening cloud sync modal:", e);
-      const modal = document.getElementById('cloudSyncModal');
-      if (modal) {
-        modal.style.display = 'flex';
-        modal.style.zIndex = '1000008';
+    // In Plan B: UI modal is removed. Trigger silent cloud push if configured.
+    if (typeof cloudSync !== 'undefined' && cloudSync.config && cloudSync.config.enabled && cloudSync.config.firebaseUrl) {
+      cloudSync.pushToCloud(true);
+      if (typeof this.showToast === 'function') {
+        this.showToast('☁️ क्लाऊड बॅकग्राउंड सिंक सुरक्षित चालू आहे.', 'info');
       }
     }
   },
 
   closeCloudSyncModal() {
-    const modal = document.getElementById('cloudSyncModal');
-    if (modal) modal.style.display = 'none';
+    // No-op for Plan B
   },
 
   async saveCloudSyncSettings() {
-    const code = document.getElementById('cloudSchoolCode') ? document.getElementById('cloudSchoolCode').value.trim() : '';
-    const pin = document.getElementById('cloudSecretPin') ? document.getElementById('cloudSecretPin').value.trim() : '';
-    const fbUrl = document.getElementById('cloudFirebaseUrl') ? document.getElementById('cloudFirebaseUrl').value.trim() : '';
-    
-    if (!fbUrl) {
-      alert('⚠️ कृपया प्रथम Google Firebase Realtime Database ची URL प्रविष्ट करा!\n\nउदा. https://your-project-default-rtdb.firebaseio.com/');
-      const fbInput = document.getElementById('cloudFirebaseUrl');
-      if (fbInput) fbInput.focus();
-      return;
-    }
-
-    if (typeof cloudSync !== 'undefined') {
-      const ok = await cloudSync.setupCloudSync(code, pin, fbUrl);
-      if (ok) this.closeCloudSyncModal();
-    }
+    // Handled automatically via firebase-config.js in Plan B
   },
 
   async syncCloudNow() {
-    if (typeof cloudSync === 'undefined') return;
-    const urlInput = document.getElementById('cloudFirebaseUrl');
-    const codeInput = document.getElementById('cloudSchoolCode');
-    const pinInput = document.getElementById('cloudSecretPin');
-    
-    const url = (urlInput ? urlInput.value.trim() : '') || (cloudSync.config ? cloudSync.config.firebaseUrl : '');
-    if (!url) {
-      alert('⚠️ कृपया प्रथम Google Firebase Realtime Database ची URL प्रविष्ट करा!\n\nउदा. https://your-project-default-rtdb.firebaseio.com/');
-      if (urlInput) urlInput.focus();
-      return;
-    }
-    
-    // Auto-save settings if user entered new URL
-    if (urlInput && urlInput.value.trim()) {
-      cloudSync.config.firebaseUrl = cloudSync.normalizeFirebaseUrl(urlInput.value.trim());
-      if (codeInput && codeInput.value.trim()) cloudSync.config.schoolCode = codeInput.value.trim();
-      if (pinInput && pinInput.value.trim()) cloudSync.config.secretPin = pinInput.value.trim();
-      cloudSync.config.enabled = true;
-      cloudSync.saveConfig();
-    }
-    
-    const btn = document.getElementById('btnCloudSyncNow');
-    const origText = btn ? btn.innerHTML : '';
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = '<span>⏳ डेटा पाठवत आहे...</span>';
-    }
-    
-    try {
-      await cloudSync.pushToCloud(false);
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = origText;
-      }
+    if (typeof cloudSync !== 'undefined') {
+      await cloudSync.pushToCloud(true);
     }
   },
 
   async pullCloudNow() {
-    if (typeof cloudSync === 'undefined') return;
-    const urlInput = document.getElementById('cloudFirebaseUrl');
-    const codeInput = document.getElementById('cloudSchoolCode');
-    const pinInput = document.getElementById('cloudSecretPin');
-    
-    const url = (urlInput ? urlInput.value.trim() : '') || (cloudSync.config ? cloudSync.config.firebaseUrl : '');
-    if (!url) {
-      alert('⚠️ कृपया प्रथम Google Firebase Realtime Database ची URL प्रविष्ट करा!\n\nउदा. https://your-project-default-rtdb.firebaseio.com/');
-      if (urlInput) urlInput.focus();
-      return;
-    }
-    
-    // Auto-save settings if user entered new URL
-    if (urlInput && urlInput.value.trim()) {
-      cloudSync.config.firebaseUrl = cloudSync.normalizeFirebaseUrl(urlInput.value.trim());
-      if (codeInput && codeInput.value.trim()) cloudSync.config.schoolCode = codeInput.value.trim();
-      if (pinInput && pinInput.value.trim()) cloudSync.config.secretPin = pinInput.value.trim();
-      cloudSync.config.enabled = true;
-      cloudSync.saveConfig();
-    }
-    
-    const btn = document.getElementById('btnCloudPullNow') || (typeof event !== 'undefined' && event && event.target ? event.target.closest('button') : null);
-    const origText = btn ? btn.innerHTML : '';
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = '<span>⏳ डेटा आणत आहे...</span>';
-    }
-    
-    try {
-      await cloudSync.pullFromCloud(false);
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = origText;
-      }
+    if (typeof cloudSync !== 'undefined') {
+      await cloudSync.pullFromCloud(true);
     }
   },
 
   async testFirebaseConnection() {
     if (typeof cloudSync === 'undefined') return;
-    const urlInput = document.getElementById('cloudFirebaseUrl');
-    const codeInput = document.getElementById('cloudSchoolCode');
-    const url = (urlInput ? urlInput.value.trim() : '') || (cloudSync.config ? cloudSync.config.firebaseUrl : '');
-    const code = (codeInput ? codeInput.value.trim() : '') || (cloudSync.config ? cloudSync.config.schoolCode : '');
-    
-    if (!url) {
-      alert('⚠️ कृपया प्रथम Google Firebase Realtime Database ची URL प्रविष्ट करा!\n\nउदा. https://your-project-default-rtdb.firebaseio.com/');
-      if (urlInput) urlInput.focus();
-      return;
-    }
-
-    const btn = document.getElementById('btnTestFirebase') || (typeof event !== 'undefined' && event && event.target ? event.target.closest('button') : null);
-    const origText = btn ? btn.innerHTML : '';
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = '<span>⏳ तपासत आहे...</span>';
-    }
-
-    try {
+    const url = cloudSync.config ? cloudSync.config.firebaseUrl : '';
+    const code = cloudSync.config ? cloudSync.config.schoolCode : '';
+    if (url) {
       await cloudSync.testFirebaseConnection(url, code);
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = origText;
-      }
     }
   },
 
   shareFullDataViaWhatsApp() {
-    this.openCloudSyncModal();
-    this.showToast('ℹ️ सर्व उपकरणांवर डेटा सिंक करण्यासाठी कृपया Google Firebase क्लाऊड सिंक वापरा.', 'info');
+    if (typeof cloudSync !== 'undefined' && cloudSync.config && cloudSync.config.enabled) {
+      cloudSync.pushToCloud(true);
+      this.showToast('✅ सर्व उपकरणांवर डेटा क्लाऊड बॅकग्राउंडमध्ये सुरक्षित सिंक होत आहे.', 'success');
+    } else {
+      this.showToast('ℹ️ सर्व उपकरणांवर डेटा सिंक करण्यासाठी firebase-config.js मध्ये URL प्रविष्ट करा.', 'info');
+    }
   },
 
   shareTodayEntryViaWhatsApp(dateStr) {
