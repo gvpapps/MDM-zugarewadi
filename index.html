@@ -207,7 +207,7 @@
           <button class="btn btn-sm btn-outline-primary" id="switchSchoolBtn" onclick="app.openSchoolSwitcherModal()" title="शाळा बदला / जलद शाळा निवडा" style="display: none !important; border-color: rgba(59, 130, 246, 0.6); color: #93c5fd;">
             <span>🔄 शाळा बदला</span>
           </button>
-          <div class="meta-pill cloud-pill" id="cloudStatusPill" style="cursor: default; border: 1px solid rgba(255, 255, 255, 0.22); font-family: inherit; user-select: none;" title="क्लाऊड बॅकग्राउंड सिंक स्थिती">
+          <div class="meta-pill cloud-pill" id="cloudStatusPill" onclick="app.refreshCloudSync()" style="cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.22); font-family: inherit; user-select: none;" title="क्लिक करून त्वरित क्लाऊड सिंक ताजे करा">
             <span id="cloudStatusDot" class="status-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; margin-right: 4px;"></span>
             <span id="cloudStatusText">🟢 सिंक सुरक्षित</span>
           </div>

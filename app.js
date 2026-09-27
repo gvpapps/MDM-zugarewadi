@@ -7124,14 +7124,20 @@ const app = {
   // CLOUD SYNC UI CONTROLLERS
   // =========================================================================
 
-  openCloudSyncModal() {
-    // In Plan B: UI modal is removed. Trigger silent cloud push if configured.
-    if (typeof cloudSync !== 'undefined' && cloudSync.config && cloudSync.config.enabled && cloudSync.config.firebaseUrl) {
-      cloudSync.pushToCloud(true);
+  async refreshCloudSync() {
+    if (typeof cloudSync !== 'undefined' && cloudSync.config && cloudSync.config.firebaseUrl) {
       if (typeof this.showToast === 'function') {
-        this.showToast('☁️ क्लाऊड बॅकग्राउंड सिंक सुरक्षित चालू आहे.', 'info');
+        this.showToast('🔄 क्लाऊडवरून नवीन डेटा तपासत आहे...', 'info');
+      }
+      const ok = await cloudSync.pullFromCloud(true);
+      if (ok && typeof this.showToast === 'function') {
+        this.showToast('✅ क्लाऊड सिंक यशस्वीरित्या अद्ययावत झाले!', 'success');
       }
     }
+  },
+
+  openCloudSyncModal() {
+    this.refreshCloudSync();
   },
 
   closeCloudSyncModal() {

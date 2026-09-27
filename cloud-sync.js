@@ -80,15 +80,46 @@ const cloudSync = {
     this.loadConfig();
     this.applyGlobalConfig();
     this.bindOnlineEvents();
+    this.startPeriodicSync();
 
     // Auto pull on startup if Firebase is enabled & configured
-    if (this.config.enabled && this.config.firebaseUrl && this.getSchoolUdise()) {
+    if (this.config.enabled && this.config.firebaseUrl) {
       setTimeout(() => {
         this.pullFromCloud(true);
-      }, 700);
+      }, 500);
     }
 
     this.updateUIStatus();
+  },
+
+  /**
+   * Start live real-time continuous background sync (focus, visibility, polling)
+   */
+  startPeriodicSync() {
+    if (typeof window === 'undefined') return;
+
+    // 1. Pull on window focus (when switching apps back to browser on mobile or PC)
+    window.addEventListener('focus', () => {
+      if (this.config.enabled && this.config.firebaseUrl && !this.isSyncing) {
+        this.pullFromCloud(true);
+      }
+    });
+
+    // 2. Pull on tab visibility change (unlocking phone screen or switching browser tabs)
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && this.config.enabled && this.config.firebaseUrl && !this.isSyncing) {
+          this.pullFromCloud(true);
+        }
+      });
+    }
+
+    // 3. Periodic continuous polling every 12 seconds
+    setInterval(() => {
+      if (this.config.enabled && this.config.firebaseUrl && !this.isSyncing && typeof document !== 'undefined' && !document.hidden) {
+        this.pullFromCloud(true);
+      }
+    }, 12000);
   },
 
   /**
@@ -160,7 +191,7 @@ const cloudSync = {
       || (typeof app !== 'undefined' && typeof app.getActiveUdise === 'function' && app.getActiveUdise())
       || (typeof localStorage !== 'undefined' && localStorage.getItem('MDM_CURRENT_UDISE'))
       || this.config.schoolCode
-      || '27240304501'
+      || '27240215801'
     ).trim();
   },
 
@@ -191,7 +222,7 @@ const cloudSync = {
       if (this.config.enabled && this.config.firebaseUrl && this.config.autoSync) {
         this.pushToCloud(true);
       }
-    }, 2500);
+    }, 400);
   },
 
   /**
@@ -358,6 +389,16 @@ const cloudSync = {
       }, 15000);
 
       if (res.ok) {
+        // Also permanently store canonical school_data for single-school dedicated database
+        try {
+          const canonicalEndpoint = `${cleanBaseUrl}/school_data.json`;
+          this.fetchWithTimeout(canonicalEndpoint, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }, 10000).catch(() => {});
+        } catch (cErr) {}
+
         // Also permanently store root school_info so database root always has latest school identity
         if (dataToPush && dataToPush.settings) {
           try {
@@ -437,15 +478,59 @@ const cloudSync = {
     this.config.status = 'syncing';
     this.updateUIStatus();
 
-    const currentUdise = this.getSchoolUdise();
+    let currentUdise = this.getSchoolUdise();
     this.config.schoolCode = currentUdise;
     const endpoint = `${cleanBaseUrl}/mdm_schools/${this.getCloudKey()}.json`;
 
     try {
-      const res = await this.fetchWithTimeout(endpoint, {}, 15000);
-      if (res.ok) {
-        const json = await res.json();
-        if (json && json.appData && typeof json.appData === 'object') {
+      let json = null;
+      // 1. Try primary school endpoint
+      try {
+        const res = await this.fetchWithTimeout(endpoint, {}, 12000);
+        if (res.ok) {
+          json = await res.json();
+        }
+      } catch (e1) {}
+
+      // 2. If school endpoint is empty or missing records, check canonical /school_data.json
+      const recCount = (json && json.appData && json.appData.records) ? Object.keys(json.appData.records).length : 0;
+      if (!json || !json.appData || recCount === 0) {
+        try {
+          const canonRes = await this.fetchWithTimeout(`${cleanBaseUrl}/school_data.json`, {}, 8000);
+          if (canonRes.ok) {
+            const canonJson = await canonRes.json();
+            if (canonJson && canonJson.appData && canonJson.appData.records && Object.keys(canonJson.appData.records).length > 0) {
+              json = canonJson;
+            }
+          }
+        } catch (cErr) {}
+      }
+
+      // 3. If still empty, scan /mdm_schools for any node with records
+      if (!json || !json.appData || !json.appData.records || Object.keys(json.appData.records).length === 0) {
+        try {
+          const allRes = await this.fetchWithTimeout(`${cleanBaseUrl}/mdm_schools.json`, {}, 8000);
+          if (allRes.ok) {
+            const allSchools = await allRes.json();
+            if (allSchools && typeof allSchools === 'object') {
+              let best = null;
+              let maxCount = 0;
+              Object.keys(allSchools).forEach(sk => {
+                const s = allSchools[sk];
+                if (s && s.appData && s.appData.records) {
+                  const cnt = Object.keys(s.appData.records).length;
+                  if (cnt > maxCount) {
+                    maxCount = cnt;
+                    best = s;
+                  }
+                }
+              });
+              if (best) json = best;
+            }
+          }
+        } catch (aErr) {}
+      }
+      if (json && json.appData && typeof json.appData === 'object') {
           const remoteData = json.appData;
           const remoteRecords = remoteData.records || {};
           const recordCount = Object.keys(remoteRecords).length;
@@ -586,12 +671,6 @@ const cloudSync = {
           }
           return false;
         }
-      } else {
-        if (res.status === 401 || res.status === 403) {
-          throw new Error('Firebase Rules लॉक आहेत (401 Permission Denied). कृपया Rules मध्ये ".read": true, ".write": true करा.');
-        }
-        throw new Error(`Firebase Server returned ${res.status}`);
-      }
     } catch (err) {
       console.warn("Firebase pull error:", err);
       this.config.status = 'error';
